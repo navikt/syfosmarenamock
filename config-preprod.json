@@ -3,5 +3,5 @@
   "mqPort": "1413",
   "mqQueueManager": "MQ1LSC03",
   "mqChannel": "Q1_SYFOSMARENAMOCK",
-  "arenaQueue": "QA.Q1_SYFOSMARENAMOCK.INPUT"
+  "inputQueue": "QA.Q1_SYFOSMARENAMOCK.INPUT"
 }

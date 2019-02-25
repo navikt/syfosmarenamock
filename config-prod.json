@@ -3,5 +3,5 @@
   "mqPort": "1414",
   "mqQueueManager": "MPLSC03",
   "mqChannel": "P_SYFOSMARENAMOCK",
-  "arenaQueue": "QA.P_SYFOSMARENAMOCK.INPUT"
+  "inputQueue": "QA.P_SYFOSMARENAMOCK.INPUT"
 }
