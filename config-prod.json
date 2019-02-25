@@ -1,0 +1,9 @@
+{
+  "mqHost": "a01apvl062.adeo.no",
+  "mqPort": "1414",
+  "mqQueueManager": "MPLSC03",
+  "mqChannel": "P_SYFOSMARENA",
+  "arenaQueue": "QA.P414.FS06_ARENA",
+  "vaultURL" : "https://vault.adeo.no",
+  "kafkaBootstrapServers": "SASL_SSL://a01apvl00145.adeo.no:8443,SASL_SSL://a01apvl00146.adeo.no:8443,SASL_SSL://a01apvl00147.adeo.no:8443,SASL_SSL://a01apvl00149.adeo.no:8443"
+}
