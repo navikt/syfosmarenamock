@@ -105,7 +105,7 @@ suspend fun blockingApplicationLogic(applicationState: ApplicationState, inputCo
 
             log.info("Message is read $logKeys", *logValues)
         } catch (e: Exception) {
-            log.error("Exception caught while handling message")
+            log.error("Exception caught while handling message", e)
         }
 
         delay(100)
