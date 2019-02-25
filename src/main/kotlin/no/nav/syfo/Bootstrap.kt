@@ -14,13 +14,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArgument
+import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.arenaSykemelding.ArenaSykmelding
 import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.util.arenaSykmeldingMarshaller
+import no.nav.syfo.util.arenaSykmeldingUnmarshaller
 import no.nav.syfo.util.connectionFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.StringReader
 import java.io.StringWriter
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -92,17 +95,15 @@ suspend fun blockingApplicationLogic(applicationState: ApplicationState, inputCo
                 else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
             }
 
-            /*
+            val arenaSykmelding = arenaSykmeldingUnmarshaller.unmarshal(StringReader(inputMessageText)) as ArenaSykmelding
 
             val logValues = arrayOf(
-                    StructuredArguments.keyValue("smId", mottakEnhetBlokk.ediLoggId),
-                    StructuredArguments.keyValue("msgId", msgHead.msgInfo.msgId),
-                    StructuredArguments.keyValue("orgNr", msgHead.msgInfo.sender.organisation.extractOrganizationNumber())
-            )
-            val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") { "{}" }
-            */
+                    StructuredArguments.keyValue("smId", arenaSykmelding.eiaDokumentInfo.dokumentInfo.ediLoggId),
+                    StructuredArguments.keyValue("msgId", arenaSykmelding.eiaDokumentInfo.dokumentInfo.dokumentreferanse))
 
-            // log.info("Message is read $logKeys", *logValues)
+            val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") { "{}" }
+
+            log.info("Message is read $logKeys", *logValues)
         } catch (e: Exception) {
             log.error("Exception caught while handling message")
         }
