@@ -14,27 +14,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.logstash.logback.argument.StructuredArgument
-import net.logstash.logback.argument.StructuredArguments
 import no.nav.helse.arenaSykemelding.ArenaSykmelding
 import no.nav.syfo.api.registerNaisApi
-import no.nav.syfo.arena.createArenaSykmelding
-import no.nav.syfo.model.ReceivedSykmelding
-import no.nav.syfo.rules.RuleMetadata
-import no.nav.syfo.rules.ValidationRuleChain
 import no.nav.syfo.util.arenaSykmeldingMarshaller
 import no.nav.syfo.util.connectionFactory
-import no.nav.syfo.util.readConsumerConfig
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.StringWriter
-import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import javax.jms.MessageConsumer
 import javax.jms.MessageProducer
 import javax.jms.Session
+import javax.jms.TextMessage
 import javax.xml.bind.Marshaller
 
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
@@ -64,15 +57,10 @@ fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCo
                 launch {
 
                     val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-                    val arenaQueue = session.createQueue(config.arenaQueue)
-                    val arenaProducer = session.createProducer(arenaQueue)
+                    val inputQueue = session.createQueue(config.inputQueue)
+                    val inputConsumer = session.createConsumer(inputQueue)
 
-                    val consumerProperties = readConsumerConfig(config, credentials, valueDeserializer = StringDeserializer::class)
-                    val kafkaconsumer = KafkaConsumer<String, String>(consumerProperties)
-                    // TODO after srvsyfosmarena can cosune all the topics kafkaconsumer.subscribe(listOf(config.kafkaSm2013AutomaticPapirmottakTopic, config.kafkaSm2013AutomaticDigitalHandlingTopic, config.kafkaSm2013manuellPapirmottakTopic, config.kafkaSm2013manuelDigitalManuellTopic))
-                    kafkaconsumer.subscribe(listOf(config.kafkaSm2013AutomaticDigitalHandlingTopic))
-
-                    blockingApplicationLogic(applicationState, kafkaconsumer, arenaProducer, session)
+                    blockingApplicationLogic(applicationState, inputConsumer)
                 }
         }.toList()
 
@@ -90,45 +78,38 @@ fun main(args: Array<String>) = runBlocking(Executors.newFixedThreadPool(2).asCo
     }
 }
 
-suspend fun blockingApplicationLogic(applicationState: ApplicationState, kafkaconsumer: KafkaConsumer<String, String>, arenaProducer: MessageProducer, session: Session) {
-        while (applicationState.running) {
-            var logValues = arrayOf(
-                    StructuredArguments.keyValue("smId", "missing"),
-                    StructuredArguments.keyValue("organizationNumber", "missing"),
-                    StructuredArguments.keyValue("msgId", "missing")
-            )
-
-            val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") {
-                "{}"
-            }
-
-            kafkaconsumer.poll(Duration.ofMillis(0)).forEach {
-                val receivedSykmelding: ReceivedSykmelding = objectMapper.readValue(it.value())
-                logValues = arrayOf(
-                        StructuredArguments.keyValue("smId", receivedSykmelding.navLogId),
-                        StructuredArguments.keyValue("organizationNumber", receivedSykmelding.legekontorOrgNr),
-                        StructuredArguments.keyValue("msgId", receivedSykmelding.msgId)
-                )
-
-                log.info("Received a SM2013, going to Arena rules, $logKeys", *logValues)
-
-                val validationRuleResults = ValidationRuleChain.values().executeFlow(receivedSykmelding.sykmelding, RuleMetadata(
-                        receivedDate = receivedSykmelding.mottattDato,
-                        signatureDate = receivedSykmelding.signaturDato,
-                        rulesetVersion = receivedSykmelding.rulesetVersion
-                ))
-
-                val results = listOf(validationRuleResults).flatten()
-
-                log.info("Finish with rules")
-
-                // TODO map rules to arena hendelse
-                val arenaSykmelding = createArenaSykmelding(receivedSykmelding, results)
-                sendArenaSykmelding(arenaProducer, session, arenaSykmelding, logKeys, logValues)
-            }
+suspend fun blockingApplicationLogic(applicationState: ApplicationState, inputConsumer: MessageConsumer) {
+    while (applicationState.running) {
+        val message = inputConsumer.receiveNoWait()
+        if (message == null) {
+            delay(100)
+            continue
         }
+
+        try {
+            val inputMessageText = when (message) {
+                is TextMessage -> message.text
+                else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
+            }
+
+            /*
+
+            val logValues = arrayOf(
+                    StructuredArguments.keyValue("smId", mottakEnhetBlokk.ediLoggId),
+                    StructuredArguments.keyValue("msgId", msgHead.msgInfo.msgId),
+                    StructuredArguments.keyValue("orgNr", msgHead.msgInfo.sender.organisation.extractOrganizationNumber())
+            )
+            val logKeys = logValues.joinToString(prefix = "(", postfix = ")", separator = ",") { "{}" }
+            */
+
+            // log.info("Message is read $logKeys", *logValues)
+        } catch (e: Exception) {
+            log.error("Exception caught while handling message")
+        }
+
         delay(100)
     }
+}
 
 fun Application.initRouting(applicationState: ApplicationState) {
     routing {

@@ -12,17 +12,9 @@ data class ApplicationConfig(
     val mqPort: Int,
     val mqQueueManager: String,
     val mqChannel: String,
-    val arenaQueue: String,
-    val vaultURL: String,
-    val kafkaSm2013AutomaticPapirmottakTopic: String = "privat-syfo-smpapir-automatiskBehandling",
-    val kafkaSm2013manuellPapirmottakTopic: String = "privat-syfo-smpapir-manuellBehandling",
-    val kafkaSm2013AutomaticDigitalHandlingTopic: String = "privat-syfo-sm2013-automatiskBehandling",
-    val kafkaSm2013manuelDigitalManuellTopic: String = "privat-syfo-sm2013-manuelBehandling",
-    val kafkaBootstrapServers: String
+    val inputQueue: String
 )
 data class VaultCredentials(
-    val serviceuserUsername: String,
-    val serviceuserPassword: String,
     val mqUsername: String,
     val mqPassword: String
 )
