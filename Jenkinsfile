@@ -45,6 +45,11 @@ pipeline {
                 sh './gradlew shadowJar'
             }
         }
+        stage('build docker image') {
+            steps {
+                dockerUtils action: 'createPushImage'
+            }
+        }
         stage('deploy to production') {
             when { environment name: 'DEPLOY_TO', value: 'production' }
 
