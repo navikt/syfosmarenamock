@@ -40,7 +40,7 @@ object XPathExtractorSpek : Spek({
 
             """.trimIndent().extractXPath(properties.getProperty("SMID_XPATH")) shouldEqual "Test"
         }
-        it ("For infotrygd") {
+        it("For infotrygd") {
             val properties = Properties()
             properties.load(Files.newInputStream(Paths.get("infotrygd_reader_prod.env")))
             """
