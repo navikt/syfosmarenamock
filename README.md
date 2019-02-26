@@ -1,6 +1,6 @@
-# SYFO Arena
+# SYFO mq mock
 
-Application reading messages in shadow prod arena
+Application consuming mq messages while running in shadow production
 
 ## Technologies used
 * Kotlin

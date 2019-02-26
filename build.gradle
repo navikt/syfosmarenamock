@@ -50,12 +50,6 @@ test {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-    implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jackson_version"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
-
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "io.prometheus:simpleclient_hotspot:$prometheus_version"
     implementation "io.prometheus:simpleclient_common:$prometheus_version"
 
@@ -64,12 +58,6 @@ dependencies {
 
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
-
-    implementation "javax.xml.bind:jaxb-api:$jaxb_api_version"
-    implementation "org.glassfish.jaxb:jaxb-runtime:$jaxb_version"
-    implementation "javax.activation:activation:$javax_activation_version"
-    
-    implementation "no.nav.helse.xml:arenaSykmelding-1:$arenaSykemdling_version"
 
     implementation "com.ibm.mq:com.ibm.mq.allclient:$ibm_mq_version"
 

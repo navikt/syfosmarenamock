@@ -1,12 +1,12 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: "syfosmarenamock"
+  name: "syfosmmqmock"
   namespace: "default"
   labels:
     team: "teamsykefravr"
 spec:
-  image: "repo.adeo.no:5443/syfo/syfosmarenamock:@@VERSION@@"
+  image: "repo.adeo.no:5443/syfo/syfosmmqmock:@@VERSION@@"
   replicas:
     min: 1
     max: 2
@@ -35,5 +35,17 @@ spec:
   vault:
     enabled: true
   env:
-    - name: CONFIG_FILE
-      value: "config-preprod.json"
+    - name: MQ_HOST
+      value: {{MQ_HOST}}
+    - name: MQ_PORT
+      value: '{{MQ_PORT}}'
+    - name: MQ_QUEUE_MANAGER
+      value: {{MQ_QUEUE_MANAGER}}
+    - name: MQ_CHANNEL
+      value: {{MQ_CHANNEL}}
+    - name: MQ_INPUT_QUEUE
+      value: {{MQ_INPUT_QUEUE}}
+    - name: SMID_XPATH
+      value: {{SMID_XPATH}}
+    - name: SM_STEP
+      value: {{SM_STEP}}
