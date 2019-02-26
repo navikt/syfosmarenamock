@@ -69,5 +69,19 @@ object XPathExtractorSpek : Spek({
 
             """.trimIndent().extractXPath(properties.getProperty("SMID_XPATH")) shouldEqual "Test"
         }
+        it("For syfomottak") {
+            val properties = Properties()
+            properties.load(Files.newInputStream(Paths.get("syfoservice_reader_prod.env")))
+            """
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<syfo>
+    <tilleggsdata>
+        <ediLoggId>1811210956torg10107.1</ediLoggId>
+        <msgId>Test</msgId>
+        <syketilfelleStartDato>2018-11-26</syketilfelleStartDato>
+    </tilleggsdata>
+</syfo>
+            """.trimIndent().extractXPath(properties.getProperty("SMID_XPATH"))
+        }
     }
 })

@@ -50,6 +50,11 @@ pipeline {
                 deployApp action: 'kubectlDeploy', cluster: 'prod-fss', file: 'naiserator.yaml', placeholderFile: 'arena_reader_prod.env'
             }
         }
+        stage('deploy syfoservice mq mock to production') {
+            steps {
+                deployApp action: 'kubectlDeploy', cluster: 'prod-fss', file: 'naiserator.yaml', placeholderFile: 'syfoservice_reader_prod.env'
+            }
+        }
         stage('deploy infotrygd mq mock to production') {
             steps {
                 deployApp action: 'kubectlDeploy', cluster: 'prod-fss', file: 'naiserator.yaml', placeholderFile: 'infotrygd_reader_prod.env'
