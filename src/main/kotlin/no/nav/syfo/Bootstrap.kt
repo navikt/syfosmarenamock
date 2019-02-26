@@ -17,6 +17,7 @@ import no.nav.syfo.api.registerNaisApi
 import no.nav.syfo.util.connectionFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.w3c.dom.Document
 import org.xml.sax.InputSource
 import java.io.StringReader
 import java.util.concurrent.Executors
@@ -24,6 +25,8 @@ import java.util.concurrent.TimeUnit
 import javax.jms.MessageConsumer
 import javax.jms.Session
 import javax.jms.TextMessage
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
 
 data class ApplicationState(var running: Boolean = true, var initialized: Boolean = false)
@@ -87,7 +90,7 @@ suspend fun blockingApplicationLogic(config: ApplicationConfig, applicationState
                 else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
             }
 
-            val smId = XPathFactory.newInstance().newXPath().evaluate(config.smIdXpath, InputSource(StringReader(inputMessageText)))
+            val smId = inputMessageText.extractXPath(config.smIdXpath)
 
             log.info("Message is read with {} with {}", keyValue("smId", smId), keyValue("step", config.stepName))
         } catch (e: Exception) {
@@ -97,6 +100,11 @@ suspend fun blockingApplicationLogic(config: ApplicationConfig, applicationState
         delay(100)
     }
 }
+
+fun String.extractXPath(xPath: String): String? = XPathFactory.newInstance().newXPath().evaluate(xPath, toXMLDocument())
+
+fun String.toXMLDocument(): Document =
+        DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(InputSource(StringReader(this)))
 
 fun Application.initRouting(applicationState: ApplicationState) {
     routing {
