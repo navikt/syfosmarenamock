@@ -20,11 +20,6 @@ pipeline {
                     sh(script: './gradlew clean')
                     def applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     env.APPLICATION_VERSION = "${applicationVersionGradle}-${env.COMMIT_HASH_SHORT}"
-                    if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
-                        env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"
-                    } else {
-                        env.DEPLOY_TO = 'production'
-                    }
                     init action: 'updateStatus', applicationName: env.APPLICATION_NAME, applicationVersion: env.APPLICATION_VERSION
                 }
             }
@@ -50,11 +45,14 @@ pipeline {
                 dockerUtils action: 'createPushImage'
             }
         }
-        stage('deploy to production') {
-            when { environment name: 'DEPLOY_TO', value: 'production' }
-
+        stage('deploy arena mq mock to production') {
             steps {
                 deployApp action: 'kubectlDeploy', cluster: 'prod-fss', file: 'naiserator.yaml', placeholderFile: 'arena_reader_prod.env'
+            }
+        }
+        stage('deploy infotrygd mq mock to production') {
+            steps {
+                deployApp action: 'kubectlDeploy', cluster: 'prod-fss', file: 'naiserator.yaml', placeholderFile: 'infotrygd_reader_prod.env'
             }
         }
     }
