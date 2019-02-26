@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit
 import javax.jms.MessageConsumer
 import javax.jms.Session
 import javax.jms.TextMessage
-import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathFactory
 
