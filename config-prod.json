@@ -1,7 +1,0 @@
-{
-  "mqHost": "a01apvl062.adeo.no",
-  "mqPort": "1414",
-  "mqQueueManager": "MPLSC03",
-  "mqChannel": "P_SYFOSMARENAMOCK",
-  "inputQueue": "QA.P_SYFOSMARENAMOCK.INPUT"
-}
