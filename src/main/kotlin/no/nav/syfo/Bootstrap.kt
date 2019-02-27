@@ -100,7 +100,7 @@ suspend fun blockingApplicationLogic(config: ApplicationConfig, applicationState
                     connection.doOutput = true
 
                     objectMapper.writeValue(connection.outputStream, mapOf(
-                            "smId" to  smId,
+                            "smId" to smId,
                             "step" to config.stepName
                     ))
 
