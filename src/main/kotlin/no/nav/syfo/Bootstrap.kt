@@ -98,6 +98,8 @@ suspend fun blockingApplicationLogic(config: ApplicationConfig, applicationState
                     connection.requestMethod = "POST"
                     connection.doInput = true
                     connection.doOutput = true
+                    // connection.addRequestProperty("Accept", "application/json")
+                    connection.addRequestProperty("Content-Type", "application/json")
 
                     objectMapper.writeValue(connection.outputStream, mapOf(
                             "smId" to smId,
