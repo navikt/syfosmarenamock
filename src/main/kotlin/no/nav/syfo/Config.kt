@@ -15,7 +15,8 @@ data class ApplicationConfig(
     val mqChannel: String = env("MQ_CHANNEL"),
     val inputQueue: String = env("MQ_INPUT_QUEUE"),
     val smIdXpath: String = env("SMID_XPATH"),
-    val stepName: String = env("SM_STEP")
+    val stepName: String = env("SM_STEP"),
+    val notifyRestMock: Boolean = env("NOTIFY_RESTMOCK", "true").toBoolean()
 )
 
 fun env(name: String, default: String? = null) =

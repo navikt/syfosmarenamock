@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 import java.io.StringReader
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.jms.MessageConsumer
@@ -90,6 +92,31 @@ suspend fun blockingApplicationLogic(config: ApplicationConfig, applicationState
             }
 
             val smId = inputMessageText.extractXPath(config.smIdXpath)
+            if (config.notifyRestMock) {
+                val connection = URL("http://syfosmrestmock/api/v1/status").openConnection() as HttpURLConnection
+                try {
+                    connection.requestMethod = "POST"
+                    connection.doInput = true
+                    connection.doOutput = true
+
+                    objectMapper.writeValue(connection.outputStream, mapOf(
+                            "smId" to  smId,
+                            "step" to config.stepName
+                    ))
+
+                    val response = connection.inputStream.readAllBytes()
+
+                    if (connection.responseCode >= 200 || connection.responseCode <= 400) {
+                        log.info("Received response with {} ${response.toString(Charsets.UTF_8)} from syfosmrestmock",
+                                keyValue("responseCode", connection.responseCode))
+                    } else {
+                        log.error("Received response with {} ${response.toString(Charsets.UTF_8)} from syfosmrestmock",
+                                keyValue("responseCode", connection.responseCode))
+                    }
+                } finally {
+                    connection.disconnect()
+                }
+            }
 
             log.info("Message is read with {} with {}", keyValue("smId", smId), keyValue("step", config.stepName))
         } catch (e: Exception) {
